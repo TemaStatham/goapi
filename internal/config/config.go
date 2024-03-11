@@ -13,6 +13,7 @@ type Config struct {
 	Env          string        `yaml:"env" env-default:"local"`
 	StoragePaths string        `yaml:"storage_paths" env-required:"true"`
 	TokenTTL     time.Duration `yaml:"token_ttl" env-required:"true"`
+	Port         int           `yaml:"port" env-default:"8080"`
 }
 
 // MustLoad получает структуру конфига
