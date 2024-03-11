@@ -1,4 +1,12 @@
 env: "local" # dev, prod
 storage_paths: "./storage/sso.db"
-token_ttl: 1h
-port: 8080
+token_ttl: "1h"
+server:
+  port: "8080"
+  host: "localhost"
+db:
+  port: "5436"
+  host: "localhost"
+  username: "postgres"
+  dbname: "postgres"
+  ssl_mode: "disable"
