@@ -3,7 +3,12 @@ package handler
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"goapi/internal/model"
 	"log/slog"
+)
+
+const (
+	InvalidInputBodyErr = "invalid input body"
 )
 
 type Handler struct {
@@ -19,17 +24,17 @@ type AuthService interface {
 }
 
 type ProductService interface {
-	Add(ctx context.Context)
-	Delete(ctx context.Context)
-	Edit(ctx context.Context)
-	GetAllProducts(ctx context.Context)
+	Add(ctx context.Context, name string, categoryies []string) (productID int64, err error)
+	Delete(ctx context.Context, name string) error
+	Edit(ctx context.Context, name string) (productID int64, err error)
+	GetAllProducts(ctx context.Context, tag string) (product []model.Product, err error)
 }
 
 type CategoryService interface {
-	Add(ctx context.Context)
-	Delete(ctx context.Context)
-	Edit(ctx context.Context)
-	GetAllProducts(ctx context.Context)
+	Add(ctx context.Context, name string) (categoryID int64, err error)
+	Delete(ctx context.Context, name string) error
+	Edit(ctx context.Context, name string) (categoryID int64, err error)
+	GetAllProducts(ctx context.Context, tag string) (categoryies []model.Category, err error)
 }
 
 func NewHandler(a *AuthService, p *ProductService, c *CategoryService, l *slog.Logger) *Handler {
@@ -52,16 +57,16 @@ func (h *Handler) Init() *gin.Engine {
 
 	auth := router.Group("/auth")
 	{
-		auth.POST("/sign-up")
-		auth.POST("/sign-in")
+		auth.POST("/sign-up", h.signUp)
+		auth.POST("/sign-in", h.signIn)
 	}
 
 	product := router.Group("/product")
 	{
-		product.POST("/add")
-		product.POST("/delete")
-		product.POST("/edit")
-		product.POST("/get-all")
+		product.POST("/add", h.addProduct)
+		product.POST("/delete", h.editProduct)
+		product.POST("/edit", h.deleteProduct)
+		product.POST("/get-all", h.getAllProducts)
 	}
 
 	category := router.Group("/category")

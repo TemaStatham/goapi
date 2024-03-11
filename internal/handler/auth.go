@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-const (
-	InvalidInputBodyErr = "invalid input body"
-)
-
 type signInInput struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
