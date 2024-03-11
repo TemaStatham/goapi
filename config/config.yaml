@@ -1,0 +1,3 @@
+env: "local" # dev, prod
+storage_paths: "./storage/sso.db"
+token_ttl: 1h
