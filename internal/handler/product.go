@@ -26,7 +26,7 @@ func (h *Handler) addProduct(c *gin.Context) {
 		return
 	}
 
-	id, err := h.ProductService.Add(c.Request.Context(), input.Name, input.Categoryies)
+	id, err := h.ProductService.AddProduct(c.Request.Context(), input.Name, input.Categoryies)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added product", err.Error())
@@ -59,7 +59,7 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 		return
 	}
 
-	err := h.ProductService.Delete(c.Request.Context(), input.Name)
+	err := h.ProductService.DeleteProduct(c.Request.Context(), input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error delete product", err.Error())
@@ -90,7 +90,7 @@ func (h *Handler) editProduct(c *gin.Context) {
 		return
 	}
 
-	productID, err := h.ProductService.Edit(c.Request.Context(), input.Name)
+	productID, err := h.ProductService.EditProduct(c.Request.Context(), input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error edit product", err.Error())

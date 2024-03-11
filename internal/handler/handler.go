@@ -12,37 +12,37 @@ const (
 )
 
 type Handler struct {
-	AuthService
-	ProductService
-	CategoryService
-	log *slog.Logger
+	auth     AuthService
+	product  ProductService
+	category CategoryService
+	log      *slog.Logger
 }
 
 type AuthService interface {
 	Login(ctx context.Context, email, password string) (token string, err error)
-	Register(ctx context.Context, email, name, password string) (userID int64, err error)
+	Register(ctx context.Context, email, password string) (userID int64, err error)
 }
 
 type ProductService interface {
-	Add(ctx context.Context, name string, categoryies []string) (productID int64, err error)
-	Delete(ctx context.Context, name string) error
-	Edit(ctx context.Context, name string) (productID int64, err error)
+	AddProduct(ctx context.Context, name string, categoryies []string) (productID int64, err error)
+	DeleteProduct(ctx context.Context, name string) error
+	EditProduct(ctx context.Context, name string) (productID int64, err error)
 	GetAllProducts(ctx context.Context, tag string) (product []model.Product, err error)
 }
 
 type CategoryService interface {
-	Add(ctx context.Context, name string) (categoryID int64, err error)
-	Delete(ctx context.Context, name string) error
-	Edit(ctx context.Context, name string) (categoryID int64, err error)
-	GetAllProducts(ctx context.Context, tag string) (categoryies []model.Category, err error)
+	AddCategory(ctx context.Context, name string) (categoryID int64, err error)
+	DeleteCategory(ctx context.Context, name string) error
+	EditCategory(ctx context.Context, name string) (categoryID int64, err error)
+	GetAllCategoryies(ctx context.Context, tag string) (categoryies []model.Category, err error)
 }
 
-func NewHandler(a *AuthService, p *ProductService, c *CategoryService, l *slog.Logger) *Handler {
+func NewHandler(a AuthService, p ProductService, c CategoryService, l *slog.Logger) *Handler {
 	return &Handler{
-		AuthService:     *a,
-		ProductService:  *p,
-		CategoryService: *c,
-		log:             l,
+		auth:     a,
+		product:  p,
+		category: c,
+		log:      l,
 	}
 }
 
@@ -71,10 +71,10 @@ func (h *Handler) Init() *gin.Engine {
 
 	category := router.Group("/category")
 	{
-		category.POST("/add")
-		category.POST("/delete")
-		category.POST("/edit")
-		category.POST("/get-all")
+		category.POST("/add", h.addCategory)
+		category.POST("/delete", h.editCategory)
+		category.POST("/edit", h.deleteCategory)
+		category.POST("/get-all", h.getAllCategory)
 	}
 
 	log.Info("Handler init")

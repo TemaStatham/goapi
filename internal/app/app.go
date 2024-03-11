@@ -56,7 +56,7 @@ func (a *App) Run() {
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
-	log.Info("TodoApp Shutting Down")
+	log.Info("Application Shutting Down")
 
 	if err := srv.Shutdown(context.Background()); err != nil {
 		log.Info("error occured on server shutting down: %s", err.Error())
