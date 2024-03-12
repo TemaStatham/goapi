@@ -32,7 +32,7 @@ type Service struct {
 }
 
 type UserSaver interface {
-	SaveUser(ctx context.Context, email string, passHash []byte) (ui int64, err error)
+	SaveUser(ctx context.Context, email string, passHash []byte) (int64, error)
 }
 
 type UserProvider interface {
