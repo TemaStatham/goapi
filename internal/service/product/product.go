@@ -39,7 +39,7 @@ type UpdaterProduct interface {
 }
 
 type GetterProduct interface {
-	GetAllProducts() ([]model.Product, error)
+	GetAllProducts(ctx context.Context) ([]model.Product, error)
 }
 
 func (s *Service) AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error) {
@@ -132,7 +132,7 @@ func (s *Service) EditProductCategoryies(ctx context.Context, id int64, category
 
 	productID, err := s.updater.UpdateProductCategoryies(ctx, id, categoryies)
 	if err != nil {
-		log.Error("product name didnt edited", err)
+		log.Error("product categoryies didnt edited", err)
 		return ErrProductId, fmt.Errorf("%s %w", op, err)
 	}
 
@@ -141,7 +141,7 @@ func (s *Service) EditProductCategoryies(ctx context.Context, id int64, category
 	return productID, nil
 }
 
-func (s *Service) GetAllProducts(ctx context.Context, tag string) (product []model.Product, err error) {
+func (s *Service) GetAllProducts(ctx context.Context, tag string) ([]model.Product, error) {
 	const op = "product.EditProduct"
 
 	log := s.log.With(
@@ -151,7 +151,13 @@ func (s *Service) GetAllProducts(ctx context.Context, tag string) (product []mod
 
 	log.Info("get all product")
 
+	products, err := s.getter.GetAllProducts(ctx)
+	if err != nil {
+		log.Error("product didnt get", err)
+		return []model.Product{}, fmt.Errorf("%s %w", op, err)
+	}
+
 	log.Info("all products is getter")
 
-	return []model.Product{}, nil
+	return products, nil
 }
