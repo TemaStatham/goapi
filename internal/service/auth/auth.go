@@ -49,7 +49,7 @@ func NewService(us UserSaver, up UserProvider, l *slog.Logger, tokenTTL time.Dur
 }
 
 func (s *Service) Login(ctx context.Context, email, password string) (string, error) {
-	const op = "auth.Login"
+	const op = "postgres.Login"
 
 	log := s.log.With(
 		slog.String("op", op),
@@ -91,7 +91,7 @@ func (s *Service) Login(ctx context.Context, email, password string) (string, er
 }
 
 func (s *Service) Register(ctx context.Context, email, password string) (userID int64, err error) {
-	const op = "auth.RegisterNewUser"
+	const op = "postgres.RegisterNewUser"
 
 	log := s.log.With(
 		slog.String("op", op),
