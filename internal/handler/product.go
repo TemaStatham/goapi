@@ -8,8 +8,8 @@ import (
 )
 
 type addProductType struct {
-	Name        string           `json:"name" binding:"required"`
-	Categoryies []model.Category `json:"categoryies" binding:"required"`
+	Name        string   `json:"name" binding:"required"`
+	Categoryies []string `json:"categoryies" binding:"required"`
 }
 
 func (h *Handler) addProduct(c *gin.Context) {

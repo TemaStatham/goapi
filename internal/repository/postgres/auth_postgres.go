@@ -25,7 +25,7 @@ func NewAuthPostgres(db *sqlx.DB, l *slog.Logger) *AuthRepository {
 }
 
 func (a *AuthRepository) SaveUser(ctx context.Context, email string, passHash []byte) (int64, error) {
-	const op = "auth.SaveUser"
+	const op = "AuthRepository.SaveUser"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -53,7 +53,7 @@ func (a *AuthRepository) SaveUser(ctx context.Context, email string, passHash []
 }
 
 func (a *AuthRepository) User(ctx context.Context, email string) (model.User, error) {
-	const op = "auth.User"
+	const op = "AuthRepository.User"
 
 	log := a.log.With(
 		slog.String("op", op),

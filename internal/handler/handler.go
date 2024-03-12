@@ -24,7 +24,7 @@ type AuthService interface {
 }
 
 type ProductService interface {
-	AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error)
+	AddProduct(ctx context.Context, name string, categoryies []string) (int64, error)
 	DeleteProduct(ctx context.Context, id int64) error
 	EditProductName(ctx context.Context, id int64, name string) (int64, error)
 	EditProductCategory(ctx context.Context, id int64, categoryies []model.Category) (int64, error)

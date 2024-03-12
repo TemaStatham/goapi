@@ -29,7 +29,7 @@ type Service struct {
 }
 
 type AdderProduct interface {
-	AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error)
+	AddProduct(ctx context.Context, name string, categoryies []string) (int64, error)
 }
 
 type DeleterProduct interface {
@@ -38,7 +38,7 @@ type DeleterProduct interface {
 
 type UpdaterProduct interface {
 	UpdateProductName(ctx context.Context, id int64, name string) (int64, error)
-	UpdateProductCategoryies(ctx context.Context, id int64, category []model.Category) (int64, error)
+	UpdateProductCategoryies(ctx context.Context, id int64, categoryies []model.Category) (int64, error)
 }
 
 type GetterProduct interface {
@@ -61,7 +61,7 @@ func NewProductService(
 	}
 }
 
-func (s *Service) AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error) {
+func (s *Service) AddProduct(ctx context.Context, name string, categoryies []string) (int64, error) {
 	const op = "product.AddProduct"
 
 	log := s.log.With(
