@@ -1,4 +1,4 @@
-package auth
+package service
 
 import (
 	"context"
@@ -24,7 +24,7 @@ var (
 	ErrFailedToSaveUser     = errors.New("failed to save user")
 )
 
-type Service struct {
+type AuthService struct {
 	usrSaver    UserSaver
 	usrProvider UserProvider
 	log         *slog.Logger
@@ -39,8 +39,8 @@ type UserProvider interface {
 	User(ctx context.Context, email string) (model.User, error)
 }
 
-func NewService(us UserSaver, up UserProvider, l *slog.Logger, tokenTTL time.Duration) *Service {
-	return &Service{
+func NewAuthService(us UserSaver, up UserProvider, l *slog.Logger, tokenTTL time.Duration) *AuthService {
+	return &AuthService{
 		usrSaver:    us,
 		usrProvider: up,
 		log:         l,
@@ -48,7 +48,7 @@ func NewService(us UserSaver, up UserProvider, l *slog.Logger, tokenTTL time.Dur
 	}
 }
 
-func (s *Service) Login(ctx context.Context, email, password string) (string, error) {
+func (s *AuthService) Login(ctx context.Context, email, password string) (string, error) {
 	const op = "postgres.Login"
 
 	log := s.log.With(
@@ -91,7 +91,7 @@ func (s *Service) Login(ctx context.Context, email, password string) (string, er
 	return token, nil
 }
 
-func (s *Service) Register(ctx context.Context, email, password string) (userID int64, err error) {
+func (s *AuthService) Register(ctx context.Context, email, password string) (userID int64, err error) {
 	const op = "postgres.RegisterNewUser"
 
 	log := s.log.With(
@@ -127,7 +127,7 @@ func (s *Service) Register(ctx context.Context, email, password string) (userID 
 	return id, nil
 }
 
-func (s *Service) validate(email, password string) error {
+func (s *AuthService) validate(email, password string) error {
 	if email == "" {
 		return ErrEmailIsEmpty
 	}

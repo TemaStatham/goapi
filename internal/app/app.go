@@ -8,9 +8,7 @@ import (
 	"goapi/internal/config"
 	"goapi/internal/handler"
 	"goapi/internal/repository/postgres"
-	"goapi/internal/service/auth"
-	"goapi/internal/service/category"
-	"goapi/internal/service/product"
+	"goapi/internal/service"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -57,9 +55,9 @@ func (a *App) Run(cfg *config.Config) error {
 	productRep := postgres.NewProductRepository(db, a.log)
 	categoryRep := postgres.NewCategoryRepository(db, a.log)
 
-	authServ := auth.NewService(authRep, authRep, a.log, cfg.TokenTTL)
-	productServ := product.NewProductService(productRep, productRep, productRep, productRep, a.log)
-	categoryServ := category.NewCategoryService(categoryRep, categoryRep, categoryRep, categoryRep, a.log)
+	authServ := service.NewAuthService(authRep, authRep, a.log, cfg.TokenTTL)
+	productServ := service.NewProductService(productRep, productRep, productRep, productRep, a.log)
+	categoryServ := service.NewCategoryService(categoryRep, categoryRep, categoryRep, categoryRep, a.log)
 
 	handlers := handler.NewHandler(authServ, productServ, categoryServ, a.log)
 

@@ -1,4 +1,4 @@
-package product
+package service
 
 import (
 	"context"
@@ -14,14 +14,14 @@ const (
 )
 
 var (
-	ErrNameIsEmpty      = errors.New("product name is empty")
-	ErrIDIsEmpty        = errors.New("product id is empty")
-	ErrCategoryiesEmpty = errors.New("product categoryies is empty")
-	ErrProductsEmpty    = errors.New("products is empty")
-	ErrUnknownTag       = errors.New("unknown tag get all products")
+	ErrProductNameIsEmpty = errors.New("product name is empty")
+	ErrProductIDIsEmpty   = errors.New("product id is empty")
+	ErrCategoryiesEmpty   = errors.New("product categoryies is empty")
+	ErrProductsEmpty      = errors.New("products is empty")
+	ErrProductUnknownTag  = errors.New("unknown tag get all products")
 )
 
-type Service struct {
+type ProductService struct {
 	adder   AdderProduct
 	deleter DeleterProduct
 	updater UpdaterProduct
@@ -54,8 +54,8 @@ func NewProductService(
 	u UpdaterProduct,
 	g GetterProduct,
 	l *slog.Logger,
-) *Service {
-	return &Service{
+) *ProductService {
+	return &ProductService{
 		adder:   a,
 		deleter: d,
 		updater: u,
@@ -64,7 +64,7 @@ func NewProductService(
 	}
 }
 
-func (s *Service) AddProduct(ctx context.Context, name string, categoryies []string) (int64, error) {
+func (s *ProductService) AddProduct(ctx context.Context, name string, categoryies []string) (int64, error) {
 	const op = "product.AddProduct"
 
 	log := s.log.With(
@@ -75,8 +75,8 @@ func (s *Service) AddProduct(ctx context.Context, name string, categoryies []str
 	log.Info("add product")
 
 	if name == "" {
-		log.Error("data is invalid: ", ErrNameIsEmpty)
-		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+		log.Error("data is invalid: ", ErrProductNameIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrProductNameIsEmpty)
 	}
 
 	if len(categoryies) == 0 {
@@ -95,7 +95,7 @@ func (s *Service) AddProduct(ctx context.Context, name string, categoryies []str
 	return productID, nil
 }
 
-func (s *Service) DeleteProduct(ctx context.Context, id int64) error {
+func (s *ProductService) DeleteProduct(ctx context.Context, id int64) error {
 	const op = "product.DeleteProduct"
 
 	log := s.log.With(
@@ -121,7 +121,7 @@ func (s *Service) DeleteProduct(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (s *Service) EditProductName(ctx context.Context, id int64, name string) (int64, error) {
+func (s *ProductService) EditProductName(ctx context.Context, id int64, name string) (int64, error) {
 	const op = "product.EditProductName"
 
 	log := s.log.With(
@@ -132,12 +132,12 @@ func (s *Service) EditProductName(ctx context.Context, id int64, name string) (i
 	log.Info("edit product name")
 
 	if id <= 0 {
-		log.Error("data is invalid: ", ErrIDIsEmpty)
+		log.Error("data is invalid: ", ErrProductIDIsEmpty)
 		return ErrProductId, fmt.Errorf("%s %w", op, ErrIDIsEmpty)
 	}
 
 	if name == "" {
-		log.Error("data is invalid: ", ErrNameIsEmpty)
+		log.Error("data is invalid: ", ErrProductNameIsEmpty)
 		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
 	}
 
@@ -152,7 +152,7 @@ func (s *Service) EditProductName(ctx context.Context, id int64, name string) (i
 	return productID, nil
 }
 
-func (s *Service) EditProductCategory(ctx context.Context, id int64, categoryies []model.Category) (int64, error) {
+func (s *ProductService) EditProductCategory(ctx context.Context, id int64, categoryies []model.Category) (int64, error) {
 	const op = "product.EditProductCategoryies"
 
 	log := s.log.With(
@@ -163,7 +163,7 @@ func (s *Service) EditProductCategory(ctx context.Context, id int64, categoryies
 	log.Info("edit product categoryies")
 
 	if id <= 0 {
-		log.Error("data is invalid: ", ErrIDIsEmpty)
+		log.Error("data is invalid: ", ErrProductIDIsEmpty)
 		return ErrProductId, fmt.Errorf("%s %w", op, ErrIDIsEmpty)
 	}
 
@@ -183,7 +183,7 @@ func (s *Service) EditProductCategory(ctx context.Context, id int64, categoryies
 	return productID, nil
 }
 
-func (s *Service) GetAllProducts(ctx context.Context, tag string) ([]model.Product, error) {
+func (s *ProductService) GetAllProducts(ctx context.Context, tag string) ([]model.Product, error) {
 	const op = "product.GetAllProducts"
 
 	log := s.log.With(
@@ -194,8 +194,8 @@ func (s *Service) GetAllProducts(ctx context.Context, tag string) ([]model.Produ
 	log.Info("get all product")
 
 	if tag != TagGetAllProducts {
-		log.Error("products didnt get", ErrUnknownTag)
-		return []model.Product{}, fmt.Errorf("%s %w", op, ErrUnknownTag)
+		log.Error("products didnt get", ErrProductUnknownTag)
+		return []model.Product{}, fmt.Errorf("%s %w", op, ErrProductUnknownTag)
 	}
 
 	products, err := s.getter.GetAllProducts(ctx)
@@ -209,7 +209,7 @@ func (s *Service) GetAllProducts(ctx context.Context, tag string) ([]model.Produ
 	return products, nil
 }
 
-func (s *Service) GetCategoryProducts(ctx context.Context, category string) ([]model.Product, error) {
+func (s *ProductService) GetCategoryProducts(ctx context.Context, category string) ([]model.Product, error) {
 	const op = "product.GetAllProducts"
 
 	log := s.log.With(
@@ -235,7 +235,7 @@ func (s *Service) GetCategoryProducts(ctx context.Context, category string) ([]m
 	return products, nil
 }
 
-func (s *Service) AddProducts(ctx context.Context, products []model.Product) error {
+func (s *ProductService) AddProducts(ctx context.Context, products []model.Product) error {
 	const op = "postgres.AddProducts"
 
 	log := s.log.With(

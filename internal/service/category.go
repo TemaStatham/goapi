@@ -1,4 +1,4 @@
-package category
+package service
 
 import (
 	"context"
@@ -14,12 +14,12 @@ const (
 )
 
 var (
-	ErrNameIsEmpty = errors.New("category name is empty")
-	ErrIDIsEmpty   = errors.New("category id is empty")
-	ErrUnknownTag  = errors.New("unknown tag get all products")
+	ErrCategoryNameIsEmpty = errors.New("category name is empty")
+	ErrCategoryIDIsEmpty   = errors.New("category id is empty")
+	ErrCategoryUnknownTag  = errors.New("unknown tag get all products")
 )
 
-type Service struct {
+type CategoryService struct {
 	adder   AdderCategory
 	deleter DeleterCategory
 	updater UpdaterCategory
@@ -49,8 +49,8 @@ func NewCategoryService(
 	u UpdaterCategory,
 	g GetterCategory,
 	l *slog.Logger,
-) *Service {
-	return &Service{
+) *CategoryService {
+	return &CategoryService{
 		adder:   a,
 		deleter: d,
 		updater: u,
@@ -59,7 +59,7 @@ func NewCategoryService(
 	}
 }
 
-func (s *Service) AddCategory(ctx context.Context, name string) (int64, error) {
+func (s *CategoryService) AddCategory(ctx context.Context, name string) (int64, error) {
 	const op = "category.AddCategory"
 
 	log := s.log.With(
@@ -70,8 +70,8 @@ func (s *Service) AddCategory(ctx context.Context, name string) (int64, error) {
 	log.Info("add category")
 
 	if name == "" {
-		log.Info("name is empty", ErrNameIsEmpty)
-		return ErrCategoryId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+		log.Info("name is empty", ErrCategoryNameIsEmpty)
+		return ErrCategoryId, fmt.Errorf("%s %w", op, ErrCategoryNameIsEmpty)
 	}
 
 	categoryID, err := s.adder.AddCategory(ctx, name)
@@ -84,7 +84,7 @@ func (s *Service) AddCategory(ctx context.Context, name string) (int64, error) {
 
 	return categoryID, nil
 }
-func (s *Service) DeleteCategory(ctx context.Context, id int64) error {
+func (s *CategoryService) DeleteCategory(ctx context.Context, id int64) error {
 	const op = "category.DeleteCategory"
 
 	log := s.log.With(
@@ -95,8 +95,8 @@ func (s *Service) DeleteCategory(ctx context.Context, id int64) error {
 	log.Info("delete category")
 
 	if id <= 0 {
-		log.Info("id is empty", ErrIDIsEmpty)
-		return fmt.Errorf("%s %w", op, ErrIDIsEmpty)
+		log.Info("id is empty", ErrCategoryIDIsEmpty)
+		return fmt.Errorf("%s %w", op, ErrCategoryIDIsEmpty)
 	}
 
 	err := s.deleter.DeleteCategory(ctx, id)
@@ -110,7 +110,7 @@ func (s *Service) DeleteCategory(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (s *Service) EditCategory(ctx context.Context, id int64, name string) (int64, error) {
+func (s *CategoryService) EditCategory(ctx context.Context, id int64, name string) (int64, error) {
 	const op = "category.DeleteCategory"
 
 	log := s.log.With(
@@ -121,13 +121,13 @@ func (s *Service) EditCategory(ctx context.Context, id int64, name string) (int6
 	log.Info("delete category")
 
 	if id <= 0 {
-		log.Info("id is empty", ErrIDIsEmpty)
-		return ErrCategoryId, fmt.Errorf("%s %w", op, ErrIDIsEmpty)
+		log.Info("id is empty", ErrCategoryIDIsEmpty)
+		return ErrCategoryId, fmt.Errorf("%s %w", op, ErrCategoryIDIsEmpty)
 	}
 
 	if name == "" {
-		log.Info("name is empty", ErrNameIsEmpty)
-		return ErrCategoryId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+		log.Info("name is empty", ErrCategoryNameIsEmpty)
+		return ErrCategoryId, fmt.Errorf("%s %w", op, ErrCategoryNameIsEmpty)
 	}
 
 	categoryID, err := s.updater.UpdateCategoryName(ctx, id, name)
@@ -140,7 +140,7 @@ func (s *Service) EditCategory(ctx context.Context, id int64, name string) (int6
 
 	return categoryID, nil
 }
-func (s *Service) GetAllCategoryies(ctx context.Context, tag string) ([]model.Category, error) {
+func (s *CategoryService) GetAllCategoryies(ctx context.Context, tag string) ([]model.Category, error) {
 	const op = "category.GetAllCategoryies"
 
 	log := s.log.With(
@@ -151,8 +151,8 @@ func (s *Service) GetAllCategoryies(ctx context.Context, tag string) ([]model.Ca
 	log.Info("get all categoryies")
 
 	if tag != TagGetAllCategoryies {
-		log.Error("categoryies didnt get", ErrUnknownTag)
-		return []model.Category{}, fmt.Errorf("%s %w", op, ErrUnknownTag)
+		log.Error("categoryies didnt get", ErrCategoryUnknownTag)
+		return []model.Category{}, fmt.Errorf("%s %w", op, ErrCategoryUnknownTag)
 	}
 
 	categoryies, err := s.getter.GetAllCategoryies(ctx)
