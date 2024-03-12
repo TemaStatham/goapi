@@ -2,13 +2,14 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"goapi/internal/model"
 	"log/slog"
 	"net/http"
 )
 
 type addProductType struct {
-	Name        string   `json:"name" binding:"required"`
-	Categoryies []string `json:"categoryies" binding:"required"`
+	Name        string           `json:"name" binding:"required"`
+	Categoryies []model.Category `json:"categoryies" binding:"required"`
 }
 
 func (h *Handler) addProduct(c *gin.Context) {
@@ -26,7 +27,7 @@ func (h *Handler) addProduct(c *gin.Context) {
 		return
 	}
 
-	id, err := h.ProductService.AddProduct(c.Request.Context(), input.Name, input.Categoryies)
+	id, err := h.product.AddProduct(c.Request.Context(), input.Name, input.Categoryies)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added product", err.Error())
@@ -41,7 +42,7 @@ func (h *Handler) addProduct(c *gin.Context) {
 }
 
 type deleteProductType struct {
-	Name string `json:"name" binding:"required"`
+	Id int64 `json:"id" binding:"required"`
 }
 
 func (h *Handler) deleteProduct(c *gin.Context) {
@@ -59,7 +60,7 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 		return
 	}
 
-	err := h.ProductService.DeleteProduct(c.Request.Context(), input.Name)
+	err := h.product.DeleteProduct(c.Request.Context(), input.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error delete product", err.Error())
@@ -72,10 +73,11 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 }
 
 type editProduct struct {
+	Id   int64  `json:"id" binding:"required"`
 	Name string `json:"name" binding:"required"`
 }
 
-func (h *Handler) editProduct(c *gin.Context) {
+func (h *Handler) editProductName(c *gin.Context) {
 	const op = "handler.editProduct"
 
 	log := h.log.With(
@@ -90,7 +92,7 @@ func (h *Handler) editProduct(c *gin.Context) {
 		return
 	}
 
-	productID, err := h.ProductService.EditProduct(c.Request.Context(), input.Name)
+	productID, err := h.product.EditProductName(c.Request.Context(), input.Id, input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error edit product", err.Error())
@@ -100,7 +102,41 @@ func (h *Handler) editProduct(c *gin.Context) {
 	log.Info("Handler product edited")
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"products": productID,
+		"productID": productID,
+	})
+}
+
+type editProductCategoryiesType struct {
+	Id          int64            `json:"id" binding:"required"`
+	Categoryies []model.Category `json:"categoryies" binding:"required"`
+}
+
+func (h *Handler) editProductCategoryies(c *gin.Context) {
+	const op = "handler.editProduct"
+
+	log := h.log.With(
+		slog.String("op", op),
+	)
+
+	var input editProductCategoryiesType
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
+		log.Error("error bind json:", InvalidInputBodyErr)
+		return
+	}
+
+	productID, err := h.product.EditProductCategory(c.Request.Context(), input.Id, input.Categoryies)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		log.Error("error edit product", err.Error())
+		return
+	}
+
+	log.Info("Handler product edited")
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"productID": productID,
 	})
 }
 
@@ -123,7 +159,7 @@ func (h *Handler) getAllProducts(c *gin.Context) {
 		return
 	}
 
-	products, err := h.ProductService.GetAllProducts(c.Request.Context(), input.Tag)
+	products, err := h.product.GetAllProducts(c.Request.Context(), input.Tag)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error getting all products", err.Error())

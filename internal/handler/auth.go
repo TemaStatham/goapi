@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"goapi/internal/model"
 	"log/slog"
 	"net/http"
 )
@@ -27,7 +26,7 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 
-	token, err := h.AuthService.Login(c.Request.Context(), input.Email, input.Password)
+	token, err := h.auth.Login(c.Request.Context(), input.Email, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error login", err.Error())
@@ -41,6 +40,11 @@ func (h *Handler) signIn(c *gin.Context) {
 	})
 }
 
+type signUpType struct {
+	Email    string `"json:"email" binding:"required"`
+	Password string `"json:"password" binding:"required"`
+}
+
 func (h *Handler) signUp(c *gin.Context) {
 	const op = "handler.signUp"
 
@@ -48,7 +52,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		slog.String("op", op),
 	)
 
-	var input model.User
+	var input signUpType
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
@@ -56,7 +60,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	id, err := h.Register(c.Request.Context(), input.Email, input.Name, input.Password)
+	id, err := h.auth.Register(c.Request.Context(), input.Email, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error register ", err.Error())

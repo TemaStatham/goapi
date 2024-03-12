@@ -25,7 +25,7 @@ func (h *Handler) addCategory(c *gin.Context) {
 		return
 	}
 
-	id, err := h.CategoryService.AddCategory(c.Request.Context(), input.Name)
+	id, err := h.category.AddCategory(c.Request.Context(), input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added category", err.Error())
@@ -40,7 +40,7 @@ func (h *Handler) addCategory(c *gin.Context) {
 }
 
 type deleteCategory struct {
-	Name string `json:"name" binding:"required"`
+	Id int `json:"id" binding:"required"`
 }
 
 func (h *Handler) deleteCategory(c *gin.Context) {
@@ -58,7 +58,7 @@ func (h *Handler) deleteCategory(c *gin.Context) {
 		return
 	}
 
-	err := h.CategoryService.DeleteCategory(c.Request.Context(), input.Name)
+	err := h.category.DeleteCategory(c.Request.Context(), input.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added category", err.Error())
@@ -89,7 +89,7 @@ func (h *Handler) editCategory(c *gin.Context) {
 		return
 	}
 
-	id, err := h.CategoryService.EditCategory(c.Request.Context(), input.Name)
+	id, err := h.category.EditCategory(c.Request.Context(), input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added category", err.Error())
@@ -122,7 +122,7 @@ func (h *Handler) getAllCategory(c *gin.Context) {
 		return
 	}
 
-	categoryies, err := h.CategoryService.GetAllCategoryies(c.Request.Context(), input.Tag)
+	categoryies, err := h.category.GetAllCategoryies(c.Request.Context(), input.Tag)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error getting all products", err.Error())

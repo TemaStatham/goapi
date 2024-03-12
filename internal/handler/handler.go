@@ -24,15 +24,16 @@ type AuthService interface {
 }
 
 type ProductService interface {
-	AddProduct(ctx context.Context, name string, categoryies []string) (productID int64, err error)
-	DeleteProduct(ctx context.Context, name string) error
-	EditProduct(ctx context.Context, name string) (productID int64, err error)
-	GetAllProducts(ctx context.Context, tag string) (product []model.Product, err error)
+	AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error)
+	DeleteProduct(ctx context.Context, id int64) error
+	EditProductName(ctx context.Context, id int64, name string) (int64, error)
+	EditProductCategory(ctx context.Context, id int64, categoryies []model.Category) (int64, error)
+	GetAllProducts(ctx context.Context, tag string) ([]model.Product, error)
 }
 
 type CategoryService interface {
 	AddCategory(ctx context.Context, name string) (categoryID int64, err error)
-	DeleteCategory(ctx context.Context, name string) error
+	DeleteCategory(ctx context.Context, id int) error
 	EditCategory(ctx context.Context, name string) (categoryID int64, err error)
 	GetAllCategoryies(ctx context.Context, tag string) (categoryies []model.Category, err error)
 }
@@ -64,8 +65,9 @@ func (h *Handler) Init() *gin.Engine {
 	product := router.Group("/product")
 	{
 		product.POST("/add", h.addProduct)
-		product.POST("/delete", h.editProduct)
-		product.POST("/edit", h.deleteProduct)
+		product.POST("/delete", h.deleteProduct)
+		product.POST("/edit-name", h.editProductName)
+		product.POST("/edit-categoryies", h.editProductCategoryies)
 		product.POST("/get-all", h.getAllProducts)
 	}
 

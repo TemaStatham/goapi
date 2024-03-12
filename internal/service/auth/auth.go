@@ -12,9 +12,16 @@ import (
 	"time"
 )
 
+const (
+	ErrUserID = -1
+)
+
 var (
 	ErrorInvalidCredentials = errors.New("invalid credential")
 	ErrorUserExist          = errors.New("user already exist")
+	ErrPasswordIsEmpty      = errors.New("password is empty")
+	ErrEmailIsEmpty         = errors.New("email is empty")
+	ErrFailedToSaveUser     = errors.New("failed to save user")
 )
 
 type Service struct {
@@ -50,6 +57,11 @@ func (s *Service) Login(ctx context.Context, email, password string) (string, er
 	)
 
 	log.Info("logging user")
+
+	if err := s.validate(email, password); err != nil {
+		log.Error("data is invalid ", err)
+		return "", fmt.Errorf("data is invalid: %w", err)
+	}
 
 	user, err := s.usrProvider.User(ctx, email)
 	if err != nil {
@@ -88,22 +100,40 @@ func (s *Service) Register(ctx context.Context, email, password string) (userID 
 
 	log.Info("registering user")
 
+	if err := s.validate(email, password); err != nil {
+		log.Error("data is invalid ", err)
+		return ErrUserID, fmt.Errorf("data is invalid: %w", err)
+	}
+
 	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserExist) {
 			s.log.Warn("app id not found", err)
-			return 0, fmt.Errorf("%s: %w", op, ErrorUserExist)
+			return ErrUserID, fmt.Errorf("%s: %w", op, ErrorUserExist)
 		}
 		log.Error("failed to get password hash: ", err)
-		return 0, fmt.Errorf("%s %w", op, err)
+		return ErrUserID, fmt.Errorf("%s %w", op, err)
 	}
 
 	id, err := s.usrSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
 		log.Error("failed to save user: ", err)
+		return ErrUserID, fmt.Errorf("%s %w", op, ErrFailedToSaveUser)
 	}
 
 	log.Info("user registered")
 
 	return id, nil
+}
+
+func (s *Service) validate(email, password string) error {
+	if email == "" {
+		return ErrEmailIsEmpty
+	}
+
+	if password == "" {
+		return ErrPasswordIsEmpty
+	}
+
+	return nil
 }

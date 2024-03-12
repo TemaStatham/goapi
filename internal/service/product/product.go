@@ -2,8 +2,19 @@ package product
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"goapi/internal/model"
 	"log/slog"
+)
+
+const (
+	ErrProductId = -1
+)
+
+var (
+	ErrNameIsEmpty      = errors.New("name is empty")
+	ErrCategoryiesEmpty = errors.New("categoryies is empty")
 )
 
 type Service struct {
@@ -15,29 +26,132 @@ type Service struct {
 }
 
 type AdderProduct interface {
-	AddProduct(product model.Product) error
+	AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error)
 }
 
 type DeleterProduct interface {
-	DeleteProduct() error
+	DeleteProduct(ctx context.Context, id int64) error
 }
 
 type UpdaterProduct interface {
-	UpdateProduct(product model.Product) error
+	UpdateProductName(ctx context.Context, id int64, name string) (int64, error)
+	UpdateProductCategoryies(ctx context.Context, id int64, category []model.Category) (int64, error)
 }
 
 type GetterProduct interface {
 	GetAllProducts() ([]model.Product, error)
 }
 
-func (s *Service) AddProduct(ctx context.Context, name string, categoryies []string) (productID int64, err error) {
+func (s *Service) AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error) {
+	const op = "product.AddProduct"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("name", name),
+	)
+
+	log.Info("add product")
+
+	if name == "" {
+		log.Error("data is invalid: ", ErrNameIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+	}
+
+	if len(categoryies) == 0 {
+		log.Error("data is invalid: ", ErrCategoryiesEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrCategoryiesEmpty)
+	}
+
+	productID, err := s.adder.AddProduct(ctx, name, categoryies)
+	if err != nil {
+		log.Error("product dont saved", err)
+		return ErrProductId, fmt.Errorf("%s %w", op, err)
+	}
+
+	log.Info("product is added")
+
+	return productID, nil
 }
 
-func (s *Service) DeleteProduct(ctx context.Context, name string) error {
+func (s *Service) DeleteProduct(ctx context.Context, id int64) error {
+	const op = "product.DeleteProduct"
 
-}
-func (s *Service) EditProduct(ctx context.Context, name string) (productID int64, err error) {
+	log := s.log.With(
+		slog.String("op", op),
+		slog.Int64("id", id),
+	)
 
+	log.Info("delete product")
+
+	if id <= 0 {
+		log.Error("data is invalid: ", ErrNameIsEmpty)
+		return fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+	}
+
+	err := s.deleter.DeleteProduct(ctx, id)
+	if err != nil {
+		log.Error("product didnt deleted", err)
+		return fmt.Errorf("%s %w", op, err)
+	}
+
+	log.Info("product is deleted")
+
+	return nil
 }
+
+func (s *Service) EditProductName(ctx context.Context, id int64, name string) (int64, error) {
+	const op = "product.EditProductName"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.Int64("id", id),
+	)
+
+	log.Info("edit product name")
+
+	productID, err := s.updater.UpdateProductName(ctx, id, name)
+	if err != nil {
+		log.Error("product name didnt edited", err)
+		return ErrProductId, fmt.Errorf("%s %w", op, err)
+	}
+
+	log.Info("product is edited")
+
+	return productID, nil
+}
+
+func (s *Service) EditProductCategoryies(ctx context.Context, id int64, categoryies []model.Category) (int64, error) {
+	const op = "product.EditProductCategoryies"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.Int64("id", id),
+	)
+
+	log.Info("edit product categoryies")
+
+	productID, err := s.updater.UpdateProductCategoryies(ctx, id, categoryies)
+	if err != nil {
+		log.Error("product name didnt edited", err)
+		return ErrProductId, fmt.Errorf("%s %w", op, err)
+	}
+
+	log.Info("product is edited")
+
+	return productID, nil
+}
+
 func (s *Service) GetAllProducts(ctx context.Context, tag string) (product []model.Product, err error) {
+	const op = "product.EditProduct"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("tag", tag),
+	)
+
+	log.Info("get all product")
+
+	log.Info("all products is getter")
+
+	return []model.Product{}, nil
 }
