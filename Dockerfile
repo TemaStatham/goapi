@@ -14,6 +14,6 @@ RUN chmod +x wait-for-postgres.sh
 
 # build go app
 RUN go mod download
-RUN go build -o api ./cmd/main.go
+RUN go build -o my-golang-app ./cmd/api/main.go
 
 CMD ["./api"]

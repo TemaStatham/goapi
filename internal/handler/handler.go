@@ -29,6 +29,7 @@ type ProductService interface {
 	EditProductName(ctx context.Context, id int64, name string) (int64, error)
 	EditProductCategory(ctx context.Context, id int64, categoryies []model.Category) (int64, error)
 	GetAllProducts(ctx context.Context, tag string) ([]model.Product, error)
+	GetCategoryProducts(ctx context.Context, category string) ([]model.Product, error)
 }
 
 type CategoryService interface {
@@ -71,6 +72,7 @@ func (h *Handler) Init() *gin.Engine {
 			product.POST("/edit-name", h.editProductName)
 			product.POST("/edit-categoryies", h.editProductCategoryies)
 			product.POST("/get-all", h.getAllProducts)
+			product.POST("/get", h.getProducts)
 		}
 
 		category := api.Group("/category")

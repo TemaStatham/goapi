@@ -277,3 +277,33 @@ func (p *ProductRepository) GetAllProducts(ctx context.Context) ([]model.Product
 
 	return products, nil
 }
+
+func (p *ProductRepository) GetCategoryProducts(ctx context.Context, category string) ([]model.Product, error) {
+	const op = "postgres.GetCategoryProducts"
+
+	log := p.log.With(
+		slog.String("op", op),
+		slog.String("category", category),
+	)
+
+	log.Info("getting products by category from db")
+
+	var products []model.Product
+	query := fmt.Sprintf(
+		" SELECT p.id, p.name\n"+
+			"FROM %s p\n"+
+			"INNER JOIN product_category pc ON p.id = pc.product_id\n"+
+			"INNER JOIN categories c ON pc.category_id = c.id\n"+
+			"WHERE c.name = $1",
+		productsTable,
+	)
+
+	if err := p.db.SelectContext(ctx, &products, query, category); err != nil {
+		log.Error("failed to get products by category from db")
+		return nil, fmt.Errorf("%s %w", op, err)
+	}
+
+	log.Info("products by category retrieved from db")
+
+	return products, nil
+}

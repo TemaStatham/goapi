@@ -43,6 +43,7 @@ type UpdaterProduct interface {
 
 type GetterProduct interface {
 	GetAllProducts(ctx context.Context) ([]model.Product, error)
+	GetCategoryProducts(ctx context.Context, category string) ([]model.Product, error)
 }
 
 func NewProductService(
@@ -202,6 +203,32 @@ func (s *Service) GetAllProducts(ctx context.Context, tag string) ([]model.Produ
 	}
 
 	log.Info("all products is getter")
+
+	return products, nil
+}
+
+func (s *Service) GetCategoryProducts(ctx context.Context, category string) ([]model.Product, error) {
+	const op = "product.GetAllProducts"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("category", category),
+	)
+
+	log.Info("get category product")
+
+	if category == "" {
+		log.Error("data is invalid: ", ErrCategoryiesEmpty)
+		return []model.Product{}, fmt.Errorf("%s %w", op, ErrCategoryiesEmpty)
+	}
+
+	products, err := s.getter.GetCategoryProducts(ctx, category)
+	if err != nil {
+		log.Error("products didnt get", err)
+		return []model.Product{}, fmt.Errorf("%s %w", op, err)
+	}
+
+	log.Info("products is getter")
 
 	return products, nil
 }

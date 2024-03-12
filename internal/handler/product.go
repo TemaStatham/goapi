@@ -202,3 +202,42 @@ func (h *Handler) getAllProducts(c *gin.Context) {
 		"products": products,
 	})
 }
+
+type getProductType struct {
+	Category string `json:"category" binding:"required"`
+}
+
+func (h *Handler) getProducts(c *gin.Context) {
+	const op = "handler.getProduct"
+
+	log := h.log.With(
+		slog.String("op", op),
+	)
+
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	var input getProductType
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
+		log.Error("error bind json:", InvalidInputBodyErr)
+		return
+	}
+
+	products, err := h.product.GetCategoryProducts(c.Request.Context(), input.Category)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		log.Error("error getting product", err.Error())
+		return
+	}
+
+	log.Info("Handler getting product")
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"products": products,
+	})
+}

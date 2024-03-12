@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  api:
+  my-golang-app:
     build: ./
     command: ./wait-for-postgres.sh db ./todo-app
     ports:
