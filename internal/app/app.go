@@ -26,7 +26,13 @@ func New(env string) *App {
 	}
 }
 
-func (a *App) Run(cfg *config.Config) {
+func (a *App) MustRun(cfg *config.Config) {
+	if err := a.Run(cfg); err != nil {
+		panic(err)
+	}
+}
+
+func (a *App) Run(cfg *config.Config) error {
 	const op = "app.run"
 
 	log := a.log.With(
@@ -43,6 +49,7 @@ func (a *App) Run(cfg *config.Config) {
 	})
 	if err != nil {
 		log.Error("failed to initialize db: %s", err)
+		return err
 	}
 
 	authRep := postgres.NewAuthPostgres(db, a.log)
@@ -72,9 +79,13 @@ func (a *App) Run(cfg *config.Config) {
 
 	if err := srv.Shutdown(context.Background()); err != nil {
 		log.Info("error occured on server shutting down: %s", err.Error())
+		return err
 	}
 
 	if err := db.Close(); err != nil {
 		log.Info("error occured on db connection close: %s", err.Error())
+		return err
 	}
+
+	return nil
 }

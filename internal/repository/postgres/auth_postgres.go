@@ -37,7 +37,7 @@ func (a *AuthRepository) SaveUser(ctx context.Context, email string, passHash []
 	var id int64
 
 	query := fmt.Sprintf(
-		"INSERT INTO %s (email, password_hash) VALUES ($1, $2) RETURNING id",
+		"INSERT INTO %s (email, passHash) VALUES ($1, $2) RETURNING id",
 		usersTable,
 	)
 
@@ -65,7 +65,7 @@ func (a *AuthRepository) User(ctx context.Context, email string) (model.User, er
 	var user model.User
 
 	query := fmt.Sprintf(
-		"SELECT id FROM %s WHERE email=$1",
+		"SELECT id, email, passHash FROM %s WHERE email=$1",
 		usersTable,
 	)
 

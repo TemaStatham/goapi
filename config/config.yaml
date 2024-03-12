@@ -2,7 +2,7 @@ env: "local" # dev, prod
 storage_paths: "./storage/sso.db"
 token_ttl: "1h"
 server:
-  port: "8080"
+  port: "8000"
   host: "localhost"
 db:
   port: "5436"
@@ -10,4 +10,4 @@ db:
   username: "postgres"
   dbname: "postgres"
   ssl_mode: "disable"
-  password: "hello"
+  password: "qwerty"
