@@ -17,6 +17,7 @@ var (
 	ErrNameIsEmpty      = errors.New("product name is empty")
 	ErrIDIsEmpty        = errors.New("product id is empty")
 	ErrCategoryiesEmpty = errors.New("product categoryies is empty")
+	ErrProductsEmpty    = errors.New("products is empty")
 	ErrUnknownTag       = errors.New("unknown tag get all products")
 )
 
@@ -30,6 +31,7 @@ type Service struct {
 
 type AdderProduct interface {
 	AddProduct(ctx context.Context, name string, categoryies []string) (int64, error)
+	AddProducts(ctx context.Context, products []model.Product) error
 }
 
 type DeleterProduct interface {
@@ -231,4 +233,29 @@ func (s *Service) GetCategoryProducts(ctx context.Context, category string) ([]m
 	log.Info("products is getter")
 
 	return products, nil
+}
+
+func (s *Service) AddProducts(ctx context.Context, products []model.Product) error {
+	const op = "postgres.AddProducts"
+
+	log := s.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("add products")
+
+	if len(products) == 0 {
+		log.Error("data is invalid: ", ErrProductsEmpty)
+		return fmt.Errorf("%s %w", op, ErrProductsEmpty)
+	}
+
+	err := s.adder.AddProducts(ctx, products)
+	if err != nil {
+		log.Error("products didnt added", err)
+		return fmt.Errorf("%s %w", op, err)
+	}
+
+	log.Info("products added")
+
+	return nil
 }

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"goapi/internal/app/logger"
+	"goapi/internal/app/productcollector"
 	"goapi/internal/app/server"
 	"goapi/internal/config"
 	"goapi/internal/handler"
@@ -69,6 +70,10 @@ func (a *App) Run(cfg *config.Config) error {
 		}
 	}()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	collector := productcollector.NewProductCollector(productServ, a.log)
+	go collector.Collect(ctx)
+
 	log.Info("Application started")
 
 	quit := make(chan os.Signal, 1)
@@ -76,6 +81,8 @@ func (a *App) Run(cfg *config.Config) error {
 	<-quit
 
 	log.Info("Application Shutting Down")
+
+	cancel()
 
 	if err := srv.Shutdown(context.Background()); err != nil {
 		log.Info("error occured on server shutting down: %s", err.Error())

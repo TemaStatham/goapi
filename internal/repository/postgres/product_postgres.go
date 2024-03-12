@@ -53,47 +53,9 @@ func (p *ProductRepository) AddProduct(
 	}
 	defer tx.Rollback()
 
-	var categoryIDs []int64
-	query := fmt.Sprintf(
-		"SELECT id FROM %s WHERE name = $1",
-		categoryTable,
-	)
-	for _, categoryName := range categoryies {
-		var categoryID int64
-		err := tx.Get(&categoryID, query, categoryName)
-		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				log.Error("category %s does not exist in the database", categoryName)
-				return ErrProductID, fmt.Errorf("%s category %s does not exist in the database", op, categoryName)
-			}
-
-			log.Error("error checking category in the database")
-			return ErrProductID, fmt.Errorf("%s %w", op, err)
-		}
-		categoryIDs = append(categoryIDs, categoryID)
-	}
-
-	query = fmt.Sprintf(
-		"INSERT INTO %s (name) VALUES ($1) RETURNING id",
-		productsTable,
-	)
-	var productID int64
-	err = tx.Get(&productID, query, name)
+	productID, err := p.addProduct(name, categoryies, tx)
 	if err != nil {
-		log.Error("error inserting product into the database")
-		return ErrProductID, fmt.Errorf("%s %w", op, err)
-	}
-
-	query = fmt.Sprintf(
-		"INSERT INTO %s (product_id, category_id) VALUES ($1, $2)",
-		productCategoryTable,
-	)
-	for _, categoryID := range categoryIDs {
-		_, err := tx.Exec(query, productID, categoryID)
-		if err != nil {
-			log.Error("error inserting product-category relationship into the database")
-			return ErrProductID, fmt.Errorf("%s %w", op, err)
-		}
+		return 0, fmt.Errorf("%s %w", op, err)
 	}
 
 	err = tx.Commit()
@@ -289,14 +251,13 @@ func (p *ProductRepository) GetCategoryProducts(ctx context.Context, category st
 	log.Info("getting products by category from db")
 
 	var products []model.Product
-	query := fmt.Sprintf(
-		" SELECT p.id, p.name\n"+
-			"FROM %s p\n"+
-			"INNER JOIN product_category pc ON p.id = pc.product_id\n"+
-			"INNER JOIN categories c ON pc.category_id = c.id\n"+
-			"WHERE c.name = $1",
-		productsTable,
-	)
+	query := fmt.Sprintf(`
+		SELECT p.id, p.name
+		FROM %s p
+		INNER JOIN product_category pc ON p.id = pc.product_id
+		INNER JOIN categories c ON pc.category_id = c.id
+		WHERE c.name = $1
+	`, productsTable)
 
 	if err := p.db.SelectContext(ctx, &products, query, category); err != nil {
 		log.Error("failed to get products by category from db")
@@ -306,4 +267,109 @@ func (p *ProductRepository) GetCategoryProducts(ctx context.Context, category st
 	log.Info("products by category retrieved from db")
 
 	return products, nil
+}
+
+func (p *ProductRepository) AddProducts(ctx context.Context, products []model.Product) error {
+	const op = "postgres.AddProducts"
+
+	log := p.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("add products from db")
+
+	tx, err := p.db.Beginx()
+	if err != nil {
+		log.Error(ErrStartTransaction.Error())
+		return fmt.Errorf("%s %w", op, ErrStartTransaction)
+	}
+	defer tx.Rollback()
+
+	for _, product := range products {
+		_, err := p.addProduct(product.Name, getNamesCategoryies(product.Categoryies), tx)
+		if err != nil {
+			log.Error("Error saving product: %v", err)
+			return fmt.Errorf("%s %w", op, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Error(ErrEndTransaction.Error())
+		return fmt.Errorf("%s %w", op, ErrEndTransaction)
+	}
+
+	log.Info("products added from db")
+
+	return nil
+}
+
+func (p *ProductRepository) getCategoryiesIDs(query string, categoryies []string, tx *sqlx.Tx) ([]int64, error) {
+	var categoryIDs []int64
+
+	for _, categoryName := range categoryies {
+		var categoryID int64
+		err := tx.Get(&categoryID, query, categoryName)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				p.log.Error("category %s does not exist in the database", categoryName)
+				return []int64{}, fmt.Errorf("category %s does not exist in the database", categoryName)
+			}
+
+			p.log.Error("error checking category in the database")
+			return []int64{}, fmt.Errorf("%w", err)
+		}
+		categoryIDs = append(categoryIDs, categoryID)
+	}
+	return categoryIDs, nil
+}
+
+func (p *ProductRepository) addProductCategory(query string, categoryIDs []int64, productID int64, tx *sqlx.Tx) error {
+	for _, categoryID := range categoryIDs {
+		_, err := tx.Exec(query, productID, categoryID)
+		if err != nil {
+			p.log.Error("error inserting product-category relationship into the database")
+			return fmt.Errorf("%w", err)
+		}
+	}
+	return nil
+}
+
+func (p *ProductRepository) addProduct(name string, categoryies []string, tx *sqlx.Tx) (int64, error) {
+	query := fmt.Sprintf(
+		"SELECT id FROM %s WHERE name = $1",
+		categoryTable,
+	)
+	categoryIDs, err := p.getCategoryiesIDs(query, categoryies, tx)
+	if err != nil {
+		return ErrProductID, err
+	}
+
+	query = fmt.Sprintf(
+		"INSERT INTO %s (name) VALUES ($1) RETURNING id",
+		productsTable,
+	)
+	var productID int64
+	err = tx.Get(&productID, query, name)
+	if err != nil {
+		p.log.Error("error inserting product into the database")
+		return ErrProductID, err
+	}
+
+	query = fmt.Sprintf(
+		"INSERT INTO %s (product_id, category_id) VALUES ($1, $2)",
+		productCategoryTable,
+	)
+	err = p.addProductCategory(query, categoryIDs, productID, tx)
+	if err != nil {
+		return ErrProductID, err
+	}
+	return productID, nil
+}
+
+func getNamesCategoryies(categoryies []model.Category) []string {
+	res := make([]string, len(categoryies))
+	for _, category := range categoryies {
+		res = append(res, category.Name)
+	}
+	return res
 }

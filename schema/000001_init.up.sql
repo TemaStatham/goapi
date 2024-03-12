@@ -6,7 +6,7 @@ CREATE TABLE users (
 
 CREATE TABLE products (
                           id SERIAL PRIMARY KEY,
-                          name VARCHAR(255) NOT NULL UNIQUE
+                          name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE categoryies (
