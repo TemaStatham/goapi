@@ -9,12 +9,14 @@ import (
 )
 
 const (
-	ErrProductId = -1
+	ErrProductId      = -1
+	TagGetAllProducts = "get all products"
 )
 
 var (
 	ErrNameIsEmpty      = errors.New("name is empty")
 	ErrCategoryiesEmpty = errors.New("categoryies is empty")
+	ErrUnknownTag       = errors.New("unknown tag get all products")
 )
 
 type Service struct {
@@ -109,6 +111,16 @@ func (s *Service) EditProductName(ctx context.Context, id int64, name string) (i
 
 	log.Info("edit product name")
 
+	if id <= 0 {
+		log.Error("data is invalid: ", ErrNameIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+	}
+
+	if name == "" {
+		log.Error("data is invalid: ", ErrNameIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+	}
+
 	productID, err := s.updater.UpdateProductName(ctx, id, name)
 	if err != nil {
 		log.Error("product name didnt edited", err)
@@ -129,6 +141,16 @@ func (s *Service) EditProductCategoryies(ctx context.Context, id int64, category
 	)
 
 	log.Info("edit product categoryies")
+
+	if id <= 0 {
+		log.Error("data is invalid: ", ErrNameIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+	}
+
+	if len(categoryies) == 0 {
+		log.Error("data is invalid: ", ErrCategoryiesEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrCategoryiesEmpty)
+	}
 
 	productID, err := s.updater.UpdateProductCategoryies(ctx, id, categoryies)
 	if err != nil {
@@ -151,9 +173,14 @@ func (s *Service) GetAllProducts(ctx context.Context, tag string) ([]model.Produ
 
 	log.Info("get all product")
 
+	if tag != TagGetAllProducts {
+		log.Error("products didnt get", ErrUnknownTag)
+		return []model.Product{}, fmt.Errorf("%s %w", op, ErrUnknownTag)
+	}
+
 	products, err := s.getter.GetAllProducts(ctx)
 	if err != nil {
-		log.Error("product didnt get", err)
+		log.Error("products didnt get", err)
 		return []model.Product{}, fmt.Errorf("%s %w", op, err)
 	}
 

@@ -32,10 +32,10 @@ type ProductService interface {
 }
 
 type CategoryService interface {
-	AddCategory(ctx context.Context, name string) (categoryID int64, err error)
-	DeleteCategory(ctx context.Context, id int) error
-	EditCategory(ctx context.Context, name string) (categoryID int64, err error)
-	GetAllCategoryies(ctx context.Context, tag string) (categoryies []model.Category, err error)
+	AddCategory(ctx context.Context, name string) (int64, error)
+	DeleteCategory(ctx context.Context, id int64) error
+	EditCategory(ctx context.Context, name string) (int64, error)
+	GetAllCategoryies(ctx context.Context, tag string) ([]model.Category, error)
 }
 
 func NewHandler(a AuthService, p ProductService, c CategoryService, l *slog.Logger) *Handler {
