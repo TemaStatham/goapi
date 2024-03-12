@@ -106,8 +106,8 @@ func (s *ProductService) DeleteProduct(ctx context.Context, id int64) error {
 	log.Info("delete product")
 
 	if id <= 0 {
-		log.Error("data is invalid: ", ErrIDIsEmpty)
-		return fmt.Errorf("%s %w", op, ErrIDIsEmpty)
+		log.Error("data is invalid: ", ErrProductIDIsEmpty)
+		return fmt.Errorf("%s %w", op, ErrProductIDIsEmpty)
 	}
 
 	err := s.deleter.DeleteProduct(ctx, id)
@@ -133,12 +133,12 @@ func (s *ProductService) EditProductName(ctx context.Context, id int64, name str
 
 	if id <= 0 {
 		log.Error("data is invalid: ", ErrProductIDIsEmpty)
-		return ErrProductId, fmt.Errorf("%s %w", op, ErrIDIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrProductIDIsEmpty)
 	}
 
 	if name == "" {
 		log.Error("data is invalid: ", ErrProductNameIsEmpty)
-		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrProductNameIsEmpty)
 	}
 
 	productID, err := s.updater.UpdateProductName(ctx, id, name)
@@ -164,7 +164,7 @@ func (s *ProductService) EditProductCategory(ctx context.Context, id int64, cate
 
 	if id <= 0 {
 		log.Error("data is invalid: ", ErrProductIDIsEmpty)
-		return ErrProductId, fmt.Errorf("%s %w", op, ErrIDIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrProductIDIsEmpty)
 	}
 
 	if len(categoryies) == 0 {
