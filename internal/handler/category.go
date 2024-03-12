@@ -17,6 +17,12 @@ func (h *Handler) addCategory(c *gin.Context) {
 		slog.String("op", op),
 	)
 
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	var input addCategory
 
 	if err := c.BindJSON(&input); err != nil {
@@ -50,6 +56,12 @@ func (h *Handler) deleteCategory(c *gin.Context) {
 		slog.String("op", op),
 	)
 
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	var input deleteCategory
 
 	if err := c.BindJSON(&input); err != nil {
@@ -58,7 +70,7 @@ func (h *Handler) deleteCategory(c *gin.Context) {
 		return
 	}
 
-	err := h.category.DeleteCategory(c.Request.Context(), input.ID)
+	err = h.category.DeleteCategory(c.Request.Context(), input.ID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added category", err.Error())
@@ -81,6 +93,12 @@ func (h *Handler) editCategory(c *gin.Context) {
 	log := h.log.With(
 		slog.String("op", op),
 	)
+
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	var input editCategory
 
@@ -114,6 +132,12 @@ func (h *Handler) getAllCategory(c *gin.Context) {
 	log := h.log.With(
 		slog.String("op", op),
 	)
+
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	var input getAllCategoryiesType
 

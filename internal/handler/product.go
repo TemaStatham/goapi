@@ -19,6 +19,12 @@ func (h *Handler) addProduct(c *gin.Context) {
 		slog.String("op", op),
 	)
 
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	var input addProductType
 
 	if err := c.BindJSON(&input); err != nil {
@@ -52,6 +58,12 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 		slog.String("op", op),
 	)
 
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	var input deleteProductType
 
 	if err := c.BindJSON(&input); err != nil {
@@ -60,7 +72,7 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 		return
 	}
 
-	err := h.product.DeleteProduct(c.Request.Context(), input.ID)
+	err = h.product.DeleteProduct(c.Request.Context(), input.ID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error delete product", err.Error())
@@ -83,6 +95,12 @@ func (h *Handler) editProductName(c *gin.Context) {
 	log := h.log.With(
 		slog.String("op", op),
 	)
+
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	var input editProduct
 
@@ -118,6 +136,12 @@ func (h *Handler) editProductCategoryies(c *gin.Context) {
 		slog.String("op", op),
 	)
 
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	var input editProductCategoryiesType
 
 	if err := c.BindJSON(&input); err != nil {
@@ -150,6 +174,12 @@ func (h *Handler) getAllProducts(c *gin.Context) {
 	log := h.log.With(
 		slog.String("op", op),
 	)
+
+	_, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	var input getAllProductsType
 

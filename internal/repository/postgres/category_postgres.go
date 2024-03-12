@@ -10,7 +10,7 @@ import (
 
 const (
 	ErrCategoryID        = 0
-	categoryTable        = "category"
+	categoryTable        = "categoryies"
 	productCategoryTable = "product_category"
 )
 

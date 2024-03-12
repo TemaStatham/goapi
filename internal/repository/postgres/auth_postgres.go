@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	usersTable = "user"
+	usersTable = "users"
 )
 
 type AuthRepository struct {

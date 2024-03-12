@@ -62,21 +62,24 @@ func (h *Handler) Init() *gin.Engine {
 		auth.POST("/sign-in", h.signIn)
 	}
 
-	product := router.Group("/product")
+	api := router.Group("/api", h.userIdentity)
 	{
-		product.POST("/add", h.addProduct)
-		product.POST("/delete", h.deleteProduct)
-		product.POST("/edit-name", h.editProductName)
-		product.POST("/edit-categoryies", h.editProductCategoryies)
-		product.POST("/get-all", h.getAllProducts)
-	}
+		product := api.Group("/product")
+		{
+			product.POST("/add", h.addProduct)
+			product.POST("/delete", h.deleteProduct)
+			product.POST("/edit-name", h.editProductName)
+			product.POST("/edit-categoryies", h.editProductCategoryies)
+			product.POST("/get-all", h.getAllProducts)
+		}
 
-	category := router.Group("/category")
-	{
-		category.POST("/add", h.addCategory)
-		category.POST("/delete", h.editCategory)
-		category.POST("/edit", h.deleteCategory)
-		category.POST("/get-all", h.getAllCategory)
+		category := api.Group("/category")
+		{
+			category.POST("/add", h.addCategory)
+			category.POST("/delete", h.editCategory)
+			category.POST("/edit", h.deleteCategory)
+			category.POST("/get-all", h.getAllCategory)
+		}
 	}
 
 	log.Info("Handler init")

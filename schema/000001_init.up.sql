@@ -9,7 +9,7 @@ CREATE TABLE products (
                           name VARCHAR(255) NOT NULL UNIQUE
 );
 
-CREATE TABLE categories (
+CREATE TABLE categoryies (
                             id SERIAL PRIMARY KEY,
                             name VARCHAR(255) NOT NULL UNIQUE
 );

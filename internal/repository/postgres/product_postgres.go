@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	productsTable = "product"
+	productsTable = "products"
 	ErrProductID  = 0
 )
 
