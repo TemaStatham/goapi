@@ -14,8 +14,9 @@ const (
 )
 
 var (
-	ErrNameIsEmpty      = errors.New("name is empty")
-	ErrCategoryiesEmpty = errors.New("categoryies is empty")
+	ErrNameIsEmpty      = errors.New("product name is empty")
+	ErrIDIsEmpty        = errors.New("product id is empty")
+	ErrCategoryiesEmpty = errors.New("product categoryies is empty")
 	ErrUnknownTag       = errors.New("unknown tag get all products")
 )
 
@@ -42,6 +43,22 @@ type UpdaterProduct interface {
 
 type GetterProduct interface {
 	GetAllProducts(ctx context.Context) ([]model.Product, error)
+}
+
+func NewProductService(
+	a AdderProduct,
+	d DeleterProduct,
+	u UpdaterProduct,
+	g GetterProduct,
+	l *slog.Logger,
+) *Service {
+	return &Service{
+		adder:   a,
+		deleter: d,
+		updater: u,
+		getter:  g,
+		log:     l,
+	}
 }
 
 func (s *Service) AddProduct(ctx context.Context, name string, categoryies []model.Category) (int64, error) {
@@ -86,8 +103,8 @@ func (s *Service) DeleteProduct(ctx context.Context, id int64) error {
 	log.Info("delete product")
 
 	if id <= 0 {
-		log.Error("data is invalid: ", ErrNameIsEmpty)
-		return fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+		log.Error("data is invalid: ", ErrIDIsEmpty)
+		return fmt.Errorf("%s %w", op, ErrIDIsEmpty)
 	}
 
 	err := s.deleter.DeleteProduct(ctx, id)
@@ -112,8 +129,8 @@ func (s *Service) EditProductName(ctx context.Context, id int64, name string) (i
 	log.Info("edit product name")
 
 	if id <= 0 {
-		log.Error("data is invalid: ", ErrNameIsEmpty)
-		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+		log.Error("data is invalid: ", ErrIDIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrIDIsEmpty)
 	}
 
 	if name == "" {
@@ -143,8 +160,8 @@ func (s *Service) EditProductCategoryies(ctx context.Context, id int64, category
 	log.Info("edit product categoryies")
 
 	if id <= 0 {
-		log.Error("data is invalid: ", ErrNameIsEmpty)
-		return ErrProductId, fmt.Errorf("%s %w", op, ErrNameIsEmpty)
+		log.Error("data is invalid: ", ErrIDIsEmpty)
+		return ErrProductId, fmt.Errorf("%s %w", op, ErrIDIsEmpty)
 	}
 
 	if len(categoryies) == 0 {
@@ -164,7 +181,7 @@ func (s *Service) EditProductCategoryies(ctx context.Context, id int64, category
 }
 
 func (s *Service) GetAllProducts(ctx context.Context, tag string) ([]model.Product, error) {
-	const op = "product.EditProduct"
+	const op = "product.GetAllProducts"
 
 	log := s.log.With(
 		slog.String("op", op),

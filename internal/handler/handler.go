@@ -34,7 +34,7 @@ type ProductService interface {
 type CategoryService interface {
 	AddCategory(ctx context.Context, name string) (int64, error)
 	DeleteCategory(ctx context.Context, id int64) error
-	EditCategory(ctx context.Context, name string) (int64, error)
+	EditCategory(ctx context.Context, id int64, name string) (int64, error)
 	GetAllCategoryies(ctx context.Context, tag string) ([]model.Category, error)
 }
 

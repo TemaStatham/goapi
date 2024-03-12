@@ -42,7 +42,7 @@ func (h *Handler) addProduct(c *gin.Context) {
 }
 
 type deleteProductType struct {
-	Id int64 `json:"id" binding:"required"`
+	ID int64 `json:"id" binding:"required"`
 }
 
 func (h *Handler) deleteProduct(c *gin.Context) {
@@ -60,7 +60,7 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 		return
 	}
 
-	err := h.product.DeleteProduct(c.Request.Context(), input.Id)
+	err := h.product.DeleteProduct(c.Request.Context(), input.ID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error delete product", err.Error())
@@ -73,7 +73,7 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 }
 
 type editProduct struct {
-	Id   int64  `json:"id" binding:"required"`
+	ID   int64  `json:"id" binding:"required"`
 	Name string `json:"name" binding:"required"`
 }
 
@@ -92,7 +92,7 @@ func (h *Handler) editProductName(c *gin.Context) {
 		return
 	}
 
-	productID, err := h.product.EditProductName(c.Request.Context(), input.Id, input.Name)
+	productID, err := h.product.EditProductName(c.Request.Context(), input.ID, input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error edit product", err.Error())
@@ -107,7 +107,7 @@ func (h *Handler) editProductName(c *gin.Context) {
 }
 
 type editProductCategoryiesType struct {
-	Id          int64            `json:"id" binding:"required"`
+	ID          int64            `json:"id" binding:"required"`
 	Categoryies []model.Category `json:"categoryies" binding:"required"`
 }
 
@@ -126,7 +126,7 @@ func (h *Handler) editProductCategoryies(c *gin.Context) {
 		return
 	}
 
-	productID, err := h.product.EditProductCategory(c.Request.Context(), input.Id, input.Categoryies)
+	productID, err := h.product.EditProductCategory(c.Request.Context(), input.ID, input.Categoryies)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error edit product", err.Error())

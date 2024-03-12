@@ -40,7 +40,7 @@ func (h *Handler) addCategory(c *gin.Context) {
 }
 
 type deleteCategory struct {
-	Id int `json:"id" binding:"required"`
+	ID int64 `json:"id" binding:"required"`
 }
 
 func (h *Handler) deleteCategory(c *gin.Context) {
@@ -58,7 +58,7 @@ func (h *Handler) deleteCategory(c *gin.Context) {
 		return
 	}
 
-	err := h.category.DeleteCategory(c.Request.Context(), input.Id)
+	err := h.category.DeleteCategory(c.Request.Context(), input.ID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added category", err.Error())
@@ -71,6 +71,7 @@ func (h *Handler) deleteCategory(c *gin.Context) {
 }
 
 type editCategory struct {
+	ID   int64  `json:"id" binding:"required"`
 	Name string `json:"name" binding:"required"`
 }
 
@@ -89,7 +90,7 @@ func (h *Handler) editCategory(c *gin.Context) {
 		return
 	}
 
-	id, err := h.category.EditCategory(c.Request.Context(), input.Name)
+	id, err := h.category.EditCategory(c.Request.Context(), input.ID, input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		log.Error("error added category", err.Error())
