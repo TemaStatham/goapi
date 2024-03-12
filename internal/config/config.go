@@ -29,6 +29,7 @@ type DataBaseConfig struct {
 	Username string `yaml:"username" env-required:"true"`
 	DBName   string `yaml:"dbname" env-required:"true"`
 	SSLMode  string `yaml:"ssl_mode" env-default:"5436"`
+	Password string `yaml:"password" env-required:"true"`
 }
 
 // MustLoad получает структуру конфига

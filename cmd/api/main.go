@@ -13,5 +13,5 @@ func main() {
 	fmt.Println(cfg)
 	a := app.New(cfg.Env)
 
-	a.Run()
+	a.Run(cfg)
 }

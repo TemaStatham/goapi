@@ -140,7 +140,7 @@ func (c *CategoryRepository) UpdateCategoryName(ctx context.Context, id int64, n
 	return id, nil
 }
 
-func (c *CategoryRepository) GetAllCategories(ctx context.Context) ([]model.Category, error) {
+func (c *CategoryRepository) GetAllCategoryies(ctx context.Context) ([]model.Category, error) {
 	const op = "postgres.GetAllCategories"
 
 	log := c.log.With(

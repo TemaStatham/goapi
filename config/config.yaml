@@ -10,3 +10,4 @@ db:
   username: "postgres"
   dbname: "postgres"
   ssl_mode: "disable"
+  password: "hello"

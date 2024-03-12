@@ -43,7 +43,7 @@ type GetterCategory interface {
 	GetAllCategoryies(ctx context.Context) ([]model.Category, error)
 }
 
-func NewProductService(
+func NewCategoryService(
 	a AdderCategory,
 	d DeleterCategory,
 	u UpdaterCategory,

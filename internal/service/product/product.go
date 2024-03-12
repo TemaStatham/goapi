@@ -149,7 +149,7 @@ func (s *Service) EditProductName(ctx context.Context, id int64, name string) (i
 	return productID, nil
 }
 
-func (s *Service) EditProductCategoryies(ctx context.Context, id int64, categoryies []model.Category) (int64, error) {
+func (s *Service) EditProductCategory(ctx context.Context, id int64, categoryies []model.Category) (int64, error) {
 	const op = "product.EditProductCategoryies"
 
 	log := s.log.With(
