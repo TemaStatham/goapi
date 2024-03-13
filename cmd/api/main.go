@@ -12,6 +12,8 @@ import (
 // Запуск приложения
 // go run ./cmd/api/main.go --config="./config/config.yaml"
 
+// TODO: тесты, коментарии поясняющие запуск(докер), комметарии поясняющие время затраченное на каждый этап
+
 func main() {
 	cfg := config.MustLoad()
 
