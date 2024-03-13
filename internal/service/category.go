@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"goapi/internal/model"
+	"goapi/internal/repository"
 	"log/slog"
 )
 
@@ -76,6 +77,11 @@ func (s *CategoryService) AddCategory(ctx context.Context, name string) (int64, 
 
 	categoryID, err := s.adder.AddCategory(ctx, name)
 	if err != nil {
+		if errors.Is(err, repository.ErrCategoryExist) {
+			s.log.Warn("category already exist", err)
+			return ErrCategoryId, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Info("category didnt added")
 		return ErrCategoryId, fmt.Errorf("%s %w", op, err)
 	}
@@ -101,6 +107,15 @@ func (s *CategoryService) DeleteCategory(ctx context.Context, id int64) error {
 
 	err := s.deleter.DeleteCategory(ctx, id)
 	if err != nil {
+		if errors.Is(err, repository.ErrCategoryDelete) {
+			s.log.Warn("user not found", err)
+			return fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+		if errors.Is(err, repository.ErrDeleteProductCategory) {
+			s.log.Warn("category not exist", err)
+			return fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Info("category didnt deleted")
 		return fmt.Errorf("%s %w", op, err)
 	}
@@ -132,6 +147,11 @@ func (s *CategoryService) EditCategory(ctx context.Context, id int64, name strin
 
 	categoryID, err := s.updater.UpdateCategoryName(ctx, id, name)
 	if err != nil {
+		if errors.Is(err, repository.ErrUpdateCategory) {
+			s.log.Warn("categoryies not updated", err)
+			return ErrCategoryId, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Info("category didnt deleted")
 		return ErrCategoryId, fmt.Errorf("%s %w", op, err)
 	}
@@ -157,6 +177,11 @@ func (s *CategoryService) GetAllCategoryies(ctx context.Context, tag string) ([]
 
 	categoryies, err := s.getter.GetAllCategoryies(ctx)
 	if err != nil {
+		if errors.Is(err, repository.ErrAllCategoryies) {
+			s.log.Warn("categoryies empty", err)
+			return []model.Category{}, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("categoryies didnt get", err)
 		return []model.Category{}, fmt.Errorf("%s %w", op, err)
 	}

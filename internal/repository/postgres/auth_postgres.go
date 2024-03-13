@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"goapi/internal/model"
+	"goapi/internal/repository"
 	"log/slog"
 )
 
@@ -44,7 +45,7 @@ func (a *AuthRepository) SaveUser(ctx context.Context, email string, passHash []
 	row := a.db.QueryRow(query, email, passHash)
 	if err := row.Scan(&id); err != nil {
 		log.Error("error insert user in db")
-		return id, err
+		return id, repository.ErrUserExist
 	}
 
 	log.Info("user is saved in db successfully")
@@ -72,7 +73,7 @@ func (a *AuthRepository) User(ctx context.Context, email string) (model.User, er
 	err := a.db.Get(&user, query, email)
 	if err != nil {
 		log.Error("error get user from db")
-		return user, err
+		return user, repository.ErrUserNotFound
 	}
 
 	log.Info("user get from db successfully")

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"goapi/internal/model"
+	"goapi/internal/repository"
 	"log/slog"
 )
 
@@ -86,6 +87,11 @@ func (s *ProductService) AddProduct(ctx context.Context, name string, categoryie
 
 	productID, err := s.adder.AddProduct(ctx, name, categoryies)
 	if err != nil {
+		if errors.Is(err, repository.ErrSaveProduct) {
+			s.log.Warn("product isnt saved", err)
+			return ErrProductId, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("product dont saved", err)
 		return ErrProductId, fmt.Errorf("%s %w", op, err)
 	}
@@ -112,6 +118,15 @@ func (s *ProductService) DeleteProduct(ctx context.Context, id int64) error {
 
 	err := s.deleter.DeleteProduct(ctx, id)
 	if err != nil {
+		if errors.Is(err, repository.ErrDeleteProduct) {
+			s.log.Warn("product isnt deleted", err)
+			return fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+		if errors.Is(err, repository.ErrDeleteProductCategory) {
+			s.log.Warn("product isnt deleted", err)
+			return fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("product didnt deleted", err)
 		return fmt.Errorf("%s %w", op, err)
 	}
@@ -143,6 +158,11 @@ func (s *ProductService) EditProductName(ctx context.Context, id int64, name str
 
 	productID, err := s.updater.UpdateProductName(ctx, id, name)
 	if err != nil {
+		if errors.Is(err, repository.ErrUpdateProduct) {
+			s.log.Warn("product isnt edited", err)
+			return ErrProductId, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("product name didnt edited", err)
 		return ErrProductId, fmt.Errorf("%s %w", op, err)
 	}
@@ -174,6 +194,15 @@ func (s *ProductService) EditProductCategory(ctx context.Context, id int64, cate
 
 	productID, err := s.updater.UpdateProductCategoryies(ctx, id, categoryies)
 	if err != nil {
+		if errors.Is(err, repository.ErrDeleteProductCategory) {
+			s.log.Warn("product isnt edited", err)
+			return ErrProductId, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+		if errors.Is(err, repository.ErrSaveProductCategory) {
+			s.log.Warn("product isnt edited", err)
+			return ErrProductId, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("product categoryies didnt edited", err)
 		return ErrProductId, fmt.Errorf("%s %w", op, err)
 	}
@@ -200,6 +229,11 @@ func (s *ProductService) GetAllProducts(ctx context.Context, tag string) ([]mode
 
 	products, err := s.getter.GetAllProducts(ctx)
 	if err != nil {
+		if errors.Is(err, repository.ErrProductNotFound) {
+			s.log.Warn("products empty", err)
+			return []model.Product{}, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("products didnt get", err)
 		return []model.Product{}, fmt.Errorf("%s %w", op, err)
 	}
@@ -226,6 +260,11 @@ func (s *ProductService) GetCategoryProducts(ctx context.Context, category strin
 
 	products, err := s.getter.GetCategoryProducts(ctx, category)
 	if err != nil {
+		if errors.Is(err, repository.ErrProductNotFound) {
+			s.log.Warn("products empty", err)
+			return []model.Product{}, fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("products didnt get", err)
 		return []model.Product{}, fmt.Errorf("%s %w", op, err)
 	}
@@ -251,6 +290,11 @@ func (s *ProductService) AddProducts(ctx context.Context, products []model.Produ
 
 	err := s.adder.AddProducts(ctx, products)
 	if err != nil {
+		if errors.Is(err, repository.ErrSaveProduct) {
+			s.log.Warn("products empty", err)
+			return fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+
 		log.Error("products didnt added", err)
 		return fmt.Errorf("%s %w", op, err)
 	}

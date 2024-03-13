@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"goapi/internal/model"
+	"goapi/internal/repository"
 	"log/slog"
 )
 
@@ -45,8 +46,8 @@ func (c *CategoryRepository) AddCategory(ctx context.Context, name string) (int6
 
 	row := c.db.QueryRow(query, name)
 	if err := row.Scan(&id); err != nil {
-		log.Error("error insert user in db")
-		return id, err
+		log.Error("error insert category in db")
+		return id, repository.ErrCategoryExist
 	}
 
 	log.Info("product saved in db successfully")
@@ -79,7 +80,7 @@ func (c *CategoryRepository) DeleteCategory(ctx context.Context, id int64) error
 	_, err = tx.Exec(query, id)
 	if err != nil {
 		log.Error("error deleting category from database")
-		return fmt.Errorf("%s %w", op, err)
+		return fmt.Errorf("%s %w", op, repository.ErrCategoryDelete)
 	}
 
 	query = fmt.Sprintf(
@@ -89,13 +90,13 @@ func (c *CategoryRepository) DeleteCategory(ctx context.Context, id int64) error
 	_, err = tx.Exec(query, id)
 	if err != nil {
 		log.Error("error deleting related product categories from the database\n")
-		return fmt.Errorf("%s %w", op, err)
+		return fmt.Errorf("%s %w", op, repository.ErrDeleteProductCategory)
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		log.Error("transaction commit error\n")
-		return fmt.Errorf("%s %w", op, err)
+		return fmt.Errorf("%s %w", op, ErrEndTransaction)
 	}
 
 	log.Info("category successfully deleted from the database")
@@ -121,7 +122,7 @@ func (c *CategoryRepository) UpdateCategoryName(ctx context.Context, id int64, n
 	result, err := c.db.Exec(query, name, id)
 	if err != nil {
 		log.Error("error updating category name in database")
-		return ErrCategoryID, fmt.Errorf("%s %w", op, err)
+		return ErrCategoryID, fmt.Errorf("%s %w", op, repository.ErrUpdateCategory)
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -158,7 +159,7 @@ func (c *CategoryRepository) GetAllCategoryies(ctx context.Context) ([]model.Cat
 	err := c.db.Select(&categories, query)
 	if err != nil {
 		log.Error("error getting categories from database\n")
-		return nil, fmt.Errorf("%s %w", op, err)
+		return nil, fmt.Errorf("%s %w", op, repository.ErrAllCategoryies)
 	}
 
 	log.Info("categories successfully retrieved from database")

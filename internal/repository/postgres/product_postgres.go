@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"goapi/internal/model"
+	"goapi/internal/repository"
 	"log/slog"
 )
 
@@ -49,13 +50,13 @@ func (p *ProductRepository) AddProduct(
 	tx, err := p.db.Beginx()
 	if err != nil {
 		log.Error(ErrStartTransaction.Error())
-		return 0, fmt.Errorf("%s %w", op, ErrStartTransaction)
+		return ErrProductID, fmt.Errorf("%s %w", op, ErrStartTransaction)
 	}
 	defer tx.Rollback()
 
 	productID, err := p.addProduct(name, categoryies, tx)
 	if err != nil {
-		return 0, fmt.Errorf("%s %w", op, err)
+		return ErrProductID, fmt.Errorf("%s %w", op, repository.ErrSaveProduct)
 	}
 
 	err = tx.Commit()
@@ -96,7 +97,7 @@ func (p *ProductRepository) DeleteProduct(
 	_, err = tx.Exec("DELETE FROM products WHERE id = $1", id)
 	if err != nil {
 		log.Error("error deleting a product from the database")
-		return fmt.Errorf("%s %w", op, err)
+		return fmt.Errorf("%s %w", op, repository.ErrDeleteProduct)
 	}
 
 	query = fmt.Sprintf(
@@ -106,7 +107,7 @@ func (p *ProductRepository) DeleteProduct(
 	_, err = tx.Exec(query, id)
 	if err != nil {
 		log.Error("error deleting product-category links from the database")
-		return fmt.Errorf("%s %w", op, err)
+		return fmt.Errorf("%s %w", op, repository.ErrDeleteProductCategory)
 	}
 
 	err = tx.Commit()
@@ -142,7 +143,7 @@ func (p *ProductRepository) UpdateProductName(
 	result, err := p.db.Exec(query, name, id)
 	if err != nil {
 		log.Error("error updating product name in database\n")
-		return ErrProductID, fmt.Errorf("%s %w", op, err)
+		return ErrProductID, fmt.Errorf("%s %w", op, repository.ErrUpdateProduct)
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -186,10 +187,10 @@ func (p *ProductRepository) UpdateProductCategoryies(
 		"DELETE FROM %s WHERE product_id = $1",
 		productCategoryTable,
 	)
-	_, err = tx.Exec("DELETE FROM product_category WHERE product_id = $1", id)
+	_, err = tx.Exec(query, id)
 	if err != nil {
 		log.Error("error deleting product-category links from the database\n")
-		return ErrProductID, fmt.Errorf("%s %w", op, err)
+		return ErrProductID, fmt.Errorf("%s %w", op, repository.ErrDeleteProductCategory)
 	}
 
 	query = fmt.Sprintf(
@@ -200,7 +201,7 @@ func (p *ProductRepository) UpdateProductCategoryies(
 		_, err := tx.Exec(query, id, category.ID)
 		if err != nil {
 			log.Error("error adding a new product-category link to the database\n")
-			return ErrProductID, fmt.Errorf("%s %w", op, err)
+			return ErrProductID, fmt.Errorf("%s %w", op, repository.ErrSaveProductCategory)
 		}
 	}
 
@@ -232,7 +233,7 @@ func (p *ProductRepository) GetAllProducts(ctx context.Context) ([]model.Product
 	err := p.db.Select(&products, query)
 	if err != nil {
 		log.Error("error getting products from database\n")
-		return nil, fmt.Errorf("%s %w", op, err)
+		return nil, fmt.Errorf("%s %w", op, repository.ErrProductNotFound)
 	}
 
 	log.Info("products successfully retrieved from database")
@@ -261,7 +262,7 @@ func (p *ProductRepository) GetCategoryProducts(ctx context.Context, category st
 
 	if err := p.db.SelectContext(ctx, &products, query, category); err != nil {
 		log.Error("failed to get products by category from db")
-		return nil, fmt.Errorf("%s %w", op, err)
+		return nil, fmt.Errorf("%s %w", op, repository.ErrProductNotFound)
 	}
 
 	log.Info("products by category retrieved from db")
@@ -289,7 +290,7 @@ func (p *ProductRepository) AddProducts(ctx context.Context, products []model.Pr
 		_, err := p.addProduct(product.Name, getNamesCategoryies(product.Categoryies), tx)
 		if err != nil {
 			log.Error("Error saving product: %v", err)
-			return fmt.Errorf("%s %w", op, err)
+			return fmt.Errorf("%s %w", op, repository.ErrSaveProduct)
 		}
 	}
 
