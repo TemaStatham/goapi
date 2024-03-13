@@ -14,6 +14,8 @@ const (
 	TagGetAllCategoryies = "get all products"
 )
 
+//go:generate mockgen -source=category.go -destination=mock/category_mock.go
+
 var (
 	ErrCategoryNameIsEmpty = errors.New("category name is empty")
 	ErrCategoryIDIsEmpty   = errors.New("category id is empty")

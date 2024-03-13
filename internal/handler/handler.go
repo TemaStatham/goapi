@@ -7,6 +7,8 @@ import (
 	"log/slog"
 )
 
+//go:generate mockgen -source=handler.go -destination=mock/mock.go
+
 const (
 	InvalidInputBodyErr = "invalid input body"
 )

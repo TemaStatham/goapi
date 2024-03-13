@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+//go:generate mockgen -source=auth.go -destination=mock/auth_mock.go
+
 const (
 	ErrUserID = -1
 )

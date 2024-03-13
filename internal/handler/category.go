@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
@@ -27,14 +28,14 @@ func (h *Handler) addCategory(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
-		log.Error("error bind json:", InvalidInputBodyErr)
+		log.Error("error bind json:", fmt.Errorf("%s", InvalidInputBodyErr))
 		return
 	}
 
 	id, err := h.category.AddCategory(c.Request.Context(), input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		log.Error("error added category", err.Error())
+		log.Error("error added category", err)
 		return
 	}
 
@@ -66,14 +67,14 @@ func (h *Handler) deleteCategory(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
-		log.Error("error bind json:", InvalidInputBodyErr)
+		log.Error("error bind json:", fmt.Errorf("%s", InvalidInputBodyErr))
 		return
 	}
 
 	err = h.category.DeleteCategory(c.Request.Context(), input.ID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		log.Error("error added category", err.Error())
+		log.Error("error added category", err)
 		return
 	}
 
@@ -104,14 +105,14 @@ func (h *Handler) editCategory(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
-		log.Error("error bind json:", InvalidInputBodyErr)
+		log.Error("error bind json:", fmt.Errorf("%s", InvalidInputBodyErr))
 		return
 	}
 
 	id, err := h.category.EditCategory(c.Request.Context(), input.ID, input.Name)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		log.Error("error added category", err.Error())
+		log.Error("error added category", err)
 		return
 	}
 
@@ -143,14 +144,14 @@ func (h *Handler) getAllCategory(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
-		log.Error("error bind json:", InvalidInputBodyErr)
+		log.Error("error bind json:", fmt.Errorf("%s", InvalidInputBodyErr))
 		return
 	}
 
 	categoryies, err := h.category.GetAllCategoryies(c.Request.Context(), input.Tag)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		log.Error("error getting all products", err.Error())
+		log.Error("error getting all products", err)
 		return
 	}
 

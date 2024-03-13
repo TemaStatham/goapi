@@ -65,7 +65,6 @@ func (c *CategoryRepository) DeleteCategory(ctx context.Context, id int64) error
 
 	log.Info("removing a category from the database")
 
-	// Начало транзакции
 	tx, err := c.db.Beginx()
 	if err != nil {
 		log.Error(ErrStartTransaction.Error())

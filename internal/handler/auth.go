@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
@@ -22,14 +23,14 @@ func (h *Handler) signIn(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
-		log.Error("error bind json:", InvalidInputBodyErr)
+		log.Error("error bind json:", fmt.Errorf("%s", InvalidInputBodyErr))
 		return
 	}
 
 	token, err := h.auth.Login(c.Request.Context(), input.Email, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		log.Error("error login", err.Error())
+		log.Error("error login", err)
 		return
 	}
 
@@ -41,8 +42,8 @@ func (h *Handler) signIn(c *gin.Context) {
 }
 
 type signUpType struct {
-	Email    string `"json:"email" binding:"required"`
-	Password string `"json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func (h *Handler) signUp(c *gin.Context) {
@@ -56,14 +57,14 @@ func (h *Handler) signUp(c *gin.Context) {
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, InvalidInputBodyErr)
-		log.Error("error bind json:", InvalidInputBodyErr)
+		log.Error("error bind json:", fmt.Errorf("%s", InvalidInputBodyErr))
 		return
 	}
 
 	id, err := h.auth.Register(c.Request.Context(), input.Email, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		log.Error("error register ", err.Error())
+		log.Error("error register ", err)
 		return
 	}
 

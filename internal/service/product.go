@@ -9,6 +9,8 @@ import (
 	"log/slog"
 )
 
+//go:generate mockgen -source=product.go -destination=mock/product_mock.go
+
 const (
 	ErrProductId      = -1
 	TagGetAllProducts = "get all products"
