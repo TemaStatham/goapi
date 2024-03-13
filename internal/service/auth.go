@@ -77,7 +77,7 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (string
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
-		s.log.Warn("pass", user.PassHash, password)
+		s.log.Warn("pass", string(user.PassHash), password)
 		s.log.Warn("invalid credential", err)
 		return "", fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
 	}
