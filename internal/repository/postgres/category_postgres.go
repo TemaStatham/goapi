@@ -73,7 +73,7 @@ func (c *CategoryRepository) DeleteCategory(ctx context.Context, id int64) error
 	defer tx.Rollback()
 
 	query := fmt.Sprintf(
-		"DELETE FROM categories WHERE id = $1",
+		"DELETE FROM %s WHERE id = $1",
 		categoryTable,
 	)
 	_, err = tx.Exec(query, id)

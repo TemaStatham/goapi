@@ -227,7 +227,7 @@ func (p *ProductRepository) GetAllProducts(ctx context.Context) ([]model.Product
 
 	var products []model.Product
 	query := fmt.Sprintf(
-		"SELECT * FROM $s",
+		"SELECT * FROM %s",
 		productsTable,
 	)
 	err := p.db.Select(&products, query)
@@ -312,7 +312,7 @@ func (p *ProductRepository) getCategoryiesIDs(query string, categoryies []string
 		err := tx.Get(&categoryID, query, categoryName)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				p.log.Error("category %s does not exist in the database", categoryName)
+				p.log.Error("category %s does not exist in the database", "err", categoryName)
 				return []int64{}, fmt.Errorf("category %s does not exist in the database", categoryName)
 			}
 
