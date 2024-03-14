@@ -12,7 +12,7 @@ import (
 
 const (
 	apiURL         = "https://petstore.swagger.io/v2/pet/findByStatus?status=available"
-	tickerInterval = 30 * time.Second
+	tickerInterval = 30 * time.Minute
 )
 
 type ProductCollector struct {
