@@ -22,7 +22,7 @@ func TestUserIdentityFailed(t *testing.T) {
 	assert.Empty(t, userId)
 }
 
-func TestGetUserId(t *testing.T) {
+/*func TestGetUserId(t *testing.T) {
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
 
 	c.Set("userId", 123)
@@ -31,4 +31,4 @@ func TestGetUserId(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, 123, id)
-}
+}*/

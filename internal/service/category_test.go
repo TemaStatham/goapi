@@ -65,3 +65,23 @@ func TestCategoryService_EditCategory(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedID, categoryID)
 }
+
+func TestFailedCategoryService_EditCategory(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUpdater := mock_service.NewMockUpdaterCategory(ctrl)
+	mockLogger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+
+	categoryService := NewCategoryService(nil, nil, mockUpdater, nil, mockLogger)
+
+	testID := int64(1)
+	testName := "Updated Category"
+	expectedID := int64(1)
+
+	mockUpdater.EXPECT().UpdateCategoryName(gomock.Any(), testID, testName).Return(expectedID-1, nil)
+
+	categoryID, err := categoryService.EditCategory(context.Background(), testID, testName)
+	assert.NoError(t, err)
+	assert.NotEqual(t, expectedID, categoryID)
+}
